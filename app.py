@@ -52,10 +52,6 @@ if st.session_state.step == 2:
     st.header('Step 2: Select Use Cases')
     st.write(f'You have a total budget of ${total_budget} Mn USD to allocate.')
     
-    # Display the budget slider
-    budget = st.slider('Set your budget:', min_value=0, max_value=total_budget, value=total_budget)
-    st.session_state.remaining_budget = budget
-    
     # Filter the DataFrame based on the selected department
     filtered_df = df[df['Department'] == st.session_state.selected_department]
     
@@ -63,13 +59,12 @@ if st.session_state.step == 2:
     if 'selected_use_cases' not in st.session_state:
         st.session_state.selected_use_cases = []
 
-    # Display use cases as tiles
-    cols = st.columns(2)
+    # Display use cases as checkboxes
     for index, row in filtered_df.iterrows():
-        with cols[index % 2]:
-            if st.button(f"{row['Use Case']} (${row['Budget (USD)']} Mn USD)", key=row['Use Case']):
-                st.session_state.selected_use_cases.append((row['Use Case'], row['Budget (USD)']))
-                st.session_state.remaining_budget -= row['Budget (USD)']
+        selected = st.checkbox(f"{row['Use Case']} (${row['Budget (USD)']} Mn USD)")
+        if selected:
+            st.session_state.selected_use_cases.append((row['Use Case'], row['Budget (USD)']))
+            st.session_state.remaining_budget -= row['Budget (USD)']
 
     # Display remaining budget
     st.write(f'Remaining Budget: ${st.session_state.remaining_budget} Mn USD')
