@@ -3,12 +3,12 @@ import pandas as pd
 
 # Sample data for AI use cases
 data = {
-    'Department': ['Cards', 'Loans', 'Customer Service', 'Fraud Detection', 'Marketing'],
+    'Department': ['Cards', 'Cards', 'Loans', 'Loans', 'Customer Service', 'Customer Service', 'Fraud Detection', 'Fraud Detection', 'Marketing', 'Marketing'],
     'Use Case': [
-        'Credit Scoring', 'Loan Approval Automation', 'Chatbots', 'Fraud Detection Algorithms', 'Customer Segmentation',
-        'Transaction Prediction', 'Risk Assessment', 'Sentiment Analysis', 'Anomaly Detection', 'Campaign Optimization'
+        'Credit Scoring', 'Transaction Prediction', 'Loan Approval Automation', 'Risk Assessment', 'Chatbots', 'Sentiment Analysis', 
+        'Fraud Detection Algorithms', 'Anomaly Detection', 'Customer Segmentation', 'Campaign Optimization'
     ],
-    'Budget (USD)': [2, 3, 1, 2, 2, 2, 2, 1, 1, 3]
+    'Budget (USD)': [2, 2, 3, 2, 1, 1, 2, 1, 2, 3]
 }
 
 # Convert data to DataFrame
@@ -46,3 +46,4 @@ if selected_use_cases:
             st.write(f"{use_case[0]} - {use_case[1]}")
 else:
     st.write('No use cases selected.')
+
