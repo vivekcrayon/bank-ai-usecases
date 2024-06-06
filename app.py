@@ -3,82 +3,63 @@ import pandas as pd
 
 # Sample data for AI use cases
 data = {
-    'Department': ['Cards', 'Cards', 'Cards', 'Cards', 'Cards', 'Operations', 'Operations', 'Operations', 'Operations', 'Operations', 
-                   'Risk', 'Risk', 'Risk', 'Risk', 'Risk', 'Marketing', 'Marketing', 'Marketing', 'Marketing', 'Marketing', 
-                   'Finance', 'Finance', 'Finance', 'Finance', 'Finance'],
+    'Division': ['Credit Cards', 'Credit Cards', 'Credit Cards', 'Credit Cards', 'Credit Cards', 
+                 'Debit Cards', 'Debit Cards', 'Debit Cards', 'Debit Cards', 'Debit Cards', 
+                 'Branch Operations', 'Branch Operations', 'Branch Operations', 'Branch Operations', 'Branch Operations', 
+                 'Risk', 'Risk', 'Risk', 'Risk', 'Risk', 
+                 'Marketing', 'Marketing', 'Marketing', 'Marketing', 'Marketing', 
+                 'Digital', 'Digital', 'Digital', 'Digital', 'Digital'],
     'Use Case': ['Credit Scoring', 'Transaction Prediction', 'Fraud Detection', 'Customer Segmentation', 'Chatbots', 
-                 'Process Automation', 'Operational Efficiency', 'Supply Chain Optimization', 'Inventory Management', 'Predictive Maintenance', 
+                 'Transaction Monitoring', 'Fraud Prevention', 'Card Activation', 'ATM Management', 'Customer Service', 
+                 'Branch Efficiency', 'Customer Relationship Management', 'Transaction Processing', 'Customer Support', 'Queue Management', 
                  'Risk Assessment', 'Fraud Detection Algorithms', 'Credit Risk Modelling', 'Compliance Monitoring', 'Anomaly Detection', 
                  'Customer Segmentation', 'Campaign Optimization', 'Market Basket Analysis', 'Sentiment Analysis', 'Churn Prediction', 
-                 'Financial Forecasting', 'Budget Planning', 'Expense Optimization', 'Risk Management', 'Revenue Optimization'],
-    'Budget (USD)': [2, 2, 3, 2, 1, 3, 2, 2, 1, 1, 3, 2, 2, 2, 1, 2, 3, 2, 1, 2, 3, 2, 2, 1, 2]
+                 'Digital Banking', 'Mobile Wallet', 'Online Account Opening', 'AI Chatbots', 'Customer Experience Enhancement'],
+    'Budget (USD)': [2, 2, 3, 2, 1, 3, 2, 2, 1, 1, 
+                     3, 2, 2, 2, 1, 2, 3, 2, 1, 2, 
+                     3, 2, 2, 1, 2, 3, 2, 2, 1, 2]
 }
 
 # Convert data to DataFrame
 df = pd.DataFrame(data)
 
-# Set the total budget
-total_budget = 10
+def initialize_session_state():
+    if 'step' not in st.session_state:
+        st.session_state.step = 1
 
-# Streamlit App
-st.title('AI Use Cases for Retail Banks')
+    if 'remaining_budget' not in st.session_state:
+        st.session_state.remaining_budget = None
 
-# Step control
-if 'step' not in st.session_state:
-    st.session_state.step = 1
-
-# Function to reset selections
-def reset_selections():
-    st.session_state.step = 1
-    if 'selected_department' in st.session_state:
-        del st.session_state.selected_department
-    if 'selected_use_cases' in st.session_state:
-        del st.session_state.selected_use_cases
-    if 'remaining_budget' in st.session_state:
-        del st.session_state.remaining_budget
-
-# Initialize remaining_budget if not present
-if 'remaining_budget' not in st.session_state:
-    st.session_state.remaining_budget = total_budget
-
-# Step 1: Choose a Department
-if st.session_state.step == 1:
-    st.header('Step 1: Choose a Department')
-    departments = df['Department'].unique()
-    
-    for department in departments:
-        if st.button(department):
-            st.session_state.selected_department = department
-            st.session_state.step = 2
-
-# Step 2: Select Use Cases
-if st.session_state.step == 2:
-    st.header('Step 2: Select Use Cases')
-    st.write(f'You have a total budget of ${total_budget} Mn USD to allocate.')
-    
-    # Filter the DataFrame based on the selected department
-    filtered_df = df[df['Department'] == st.session_state.selected_department]
-    
-    # Initialize selected use cases
     if 'selected_use_cases' not in st.session_state:
         st.session_state.selected_use_cases = []
 
+def choose_division():
+    st.header('Step 1: Choose a Division')
+    divisions = df['Division'].unique()
+    
+    for division in divisions:
+        if st.button(division):
+            st.session_state.selected_division = division
+            st.session_state.step = 2
+
+def select_use_cases():
+    st.header('Step 2: Select Use Cases')
+    st.write('Allocate your budget to select the use cases.')
+    
+    # Filter the DataFrame based on the selected division
+    filtered_df = df[df['Division'] == st.session_state.selected_division]
+
     # Display use cases as checkboxes
     for index, row in filtered_df.iterrows():
-        selected = st.checkbox(f"{row['Use Case']} (${row['Budget (USD)']} Mn USD)")
-        if selected:
-            st.session_state.selected_use_cases.append((row['Use Case'], row['Budget (USD)']))
-            st.session_state.remaining_budget -= row['Budget (USD)']
+        budget = st.number_input(f"{row['Use Case']} (${row['Budget (USD)']} Mn USD)", min_value=0)
+        if budget > 0:
+            st.session_state.selected_use_cases.append((row['Use Case'], budget))
 
-    # Display remaining budget
-    st.write(f'Remaining Budget: ${st.session_state.remaining_budget} Mn USD')
-    
     # Proceed to the next step
     if st.button('Provide roadmap and ROI'):
         st.session_state.step = 3
 
-# Step 3: Request Roadmap
-if st.session_state.step == 3:
+def request_roadmap():
     st.header('Step 3: Request Roadmap')
     
     if st.session_state.selected_use_cases:
@@ -99,5 +80,28 @@ if st.session_state.step == 3:
     else:
         st.write('No use cases selected.')
 
-if st.button('Restart'):
-    reset_selections()
+def reset_selections():
+    st.session_state.step = 1
+    if 'selected_division' in st.session_state:
+        del st.session_state.selected_division
+    if 'selected_use_cases' in st.session_state:
+        del st.session_state.selected_use_cases
+    if 'remaining_budget' in st.session_state:
+        del st.session_state.remaining_budget
+
+def main():
+    st.title('AI Use Cases for Retail Banks')
+    initialize_session_state()
+
+    if st.session_state.step == 1:
+        choose_division()
+    elif st.session_state.step == 2:
+        select_use_cases()
+    elif st.session_state.step == 3:
+        request_roadmap()
+
+    if st.button('Restart'):
+        reset_selections()
+
+if __name__ == "__main__":
+    main()
