@@ -37,6 +37,10 @@ def reset_selections():
     if 'remaining_budget' in st.session_state:
         del st.session_state.remaining_budget
 
+# Initialize remaining_budget if not present
+if 'remaining_budget' not in st.session_state:
+    st.session_state.remaining_budget = total_budget
+
 # Step 1: Choose a Department
 if st.session_state.step == 1:
     st.header('Step 1: Choose a Department')
