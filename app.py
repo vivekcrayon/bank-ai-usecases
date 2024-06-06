@@ -3,35 +3,15 @@ import pandas as pd
 
 # Sample data for AI use cases
 data = {
-    'Department': [
-        'Cards', 'Cards', 'Cards', 'Cards', 'Cards', 
-        'Operations', 'Operations', 'Operations', 'Operations', 'Operations', 
-        'Risk', 'Risk', 'Risk', 'Risk', 'Risk', 
-        'Marketing', 'Marketing', 'Marketing', 'Marketing', 'Marketing', 
-        'Finance', 'Finance', 'Finance', 'Finance', 'Finance',
-        'Customer Service', 'Customer Service', 'Customer Service', 'Customer Service', 'Customer Service',
-        'IT', 'IT', 'IT', 'IT', 'IT',
-        'Compliance', 'Compliance', 'Compliance', 'Compliance', 'Compliance',
-        'HR', 'HR', 'HR', 'HR', 'HR',
-        'Legal', 'Legal', 'Legal', 'Legal', 'Legal',
-        'Sales', 'Sales', 'Sales', 'Sales', 'Sales'
-    ],
-    'Use Case': [
-        'Credit Scoring', 'Transaction Prediction', 'Fraud Detection', 'Customer Segmentation', 'Chatbots',
-        'Process Automation', 'Operational Efficiency', 'Supply Chain Optimization', 'Inventory Management', 'Predictive Maintenance',
-        'Risk Assessment', 'Fraud Detection Algorithms', 'Credit Risk Modelling', 'Compliance Monitoring', 'Anomaly Detection',
-        'Customer Segmentation', 'Campaign Optimization', 'Market Basket Analysis', 'Sentiment Analysis', 'Churn Prediction',
-        'Financial Forecasting', 'Budget Planning', 'Expense Optimization', 'Risk Management', 'Revenue Optimization',
-        'Chatbots', 'Sentiment Analysis', 'Customer Feedback Analysis', 'Service Automation', 'Personalized Service',
-        'IT Security', 'System Optimization', 'Data Management', 'Infrastructure Monitoring', 'Incident Management',
-        'Regulatory Reporting', 'Policy Management', 'Audit Trail', 'Compliance Monitoring', 'Risk Management',
-        'Employee Engagement', 'Recruitment Automation', 'Performance Analysis', 'HR Analytics', 'Employee Retention',
-        'Contract Analysis', 'Case Management', 'Legal Research', 'Regulatory Compliance', 'Litigation Prediction',
-        'Sales Forecasting', 'Lead Scoring', 'Customer Analytics', 'Market Analysis', 'Sales Optimization'
-    ],
-    'Budget (USD)': [
-        2, 2, 3, 2, 1, 3, 2, 2, 1, 1, 3, 2, 2, 2, 1, 2, 3, 2, 1, 2, 3, 2, 2, 1, 2, 1, 1, 2, 2, 1, 2, 2, 3, 1, 1, 2, 2, 2, 1, 1, 3, 2, 1, 2, 2, 1, 2, 1, 1, 2, 2, 3, 2, 1, 2
-    ]
+    'Department': ['Cards', 'Cards', 'Cards', 'Cards', 'Cards', 'Operations', 'Operations', 'Operations', 'Operations', 'Operations', 
+                   'Risk', 'Risk', 'Risk', 'Risk', 'Risk', 'Marketing', 'Marketing', 'Marketing', 'Marketing', 'Marketing', 
+                   'Finance', 'Finance', 'Finance', 'Finance', 'Finance'],
+    'Use Case': ['Credit Scoring', 'Transaction Prediction', 'Fraud Detection', 'Customer Segmentation', 'Chatbots', 
+                 'Process Automation', 'Operational Efficiency', 'Supply Chain Optimization', 'Inventory Management', 'Predictive Maintenance', 
+                 'Risk Assessment', 'Fraud Detection Algorithms', 'Credit Risk Modelling', 'Compliance Monitoring', 'Anomaly Detection', 
+                 'Customer Segmentation', 'Campaign Optimization', 'Market Basket Analysis', 'Sentiment Analysis', 'Churn Prediction', 
+                 'Financial Forecasting', 'Budget Planning', 'Expense Optimization', 'Risk Management', 'Revenue Optimization'],
+    'Budget (USD)': [2, 2, 3, 2, 1, 3, 2, 2, 1, 1, 3, 2, 2, 2, 1, 2, 3, 2, 1, 2, 3, 2, 2, 1, 2]
 }
 
 # Convert data to DataFrame
@@ -62,24 +42,22 @@ if st.session_state.step == 1:
     st.header('Step 1: Choose a Department')
     departments = df['Department'].unique()
     
-    cols = st.columns(2)
-    for i, department in enumerate(departments):
-        with cols[i % 2]:
-            if st.button(department):
-                st.session_state.selected_department = department
-                st.session_state.step = 2
+    for department in departments:
+        if st.button(department):
+            st.session_state.selected_department = department
+            st.session_state.step = 2
 
 # Step 2: Select Use Cases
 if st.session_state.step == 2:
     st.header('Step 2: Select Use Cases')
     st.write(f'You have a total budget of ${total_budget} Mn USD to allocate.')
     
+    # Display the budget slider
+    budget = st.slider('Set your budget:', min_value=0, max_value=total_budget, value=total_budget)
+    st.session_state.remaining_budget = budget
+    
     # Filter the DataFrame based on the selected department
     filtered_df = df[df['Department'] == st.session_state.selected_department]
-    
-    # Ensure at least 10 use cases are shown for each department
-    if len(filtered_df) < 10:
-        filtered_df = pd.concat([filtered_df, filtered_df.sample(10 - len(filtered_df), replace=True)])
     
     # Initialize selected use cases
     if 'selected_use_cases' not in st.session_state:
@@ -88,11 +66,10 @@ if st.session_state.step == 2:
     # Display use cases as tiles
     cols = st.columns(2)
     for index, row in filtered_df.iterrows():
-        key = f"{st.session_state.selected_department}_{row['Use Case']}_{index}"
         with cols[index % 2]:
-            if st.button(f"{row['Use Case']} (${row['Budget (USD)']} Mn USD)", key=key):
+            if st.button(f"{row['Use Case']} (${row['Budget (USD)']} Mn USD)", key=row['Use Case']):
                 st.session_state.selected_use_cases.append((row['Use Case'], row['Budget (USD)']))
-                st.session_state.remaining_budget = total_budget - sum([use_case[1] for use_case in st.session_state.selected_use_cases])
+                st.session_state.remaining_budget -= row['Budget (USD)']
 
     # Display remaining budget
     st.write(f'Remaining Budget: ${st.session_state.remaining_budget} Mn USD')
@@ -125,7 +102,3 @@ if st.session_state.step == 3:
 
 if st.button('Restart'):
     reset_selections()
-
-
-
-
