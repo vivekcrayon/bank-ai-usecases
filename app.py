@@ -88,8 +88,9 @@ if st.session_state.step == 2:
     # Display use cases as tiles
     cols = st.columns(2)
     for index, row in filtered_df.iterrows():
+        key = f"{st.session_state.selected_department}_{row['Use Case']}_{index}"
         with cols[index % 2]:
-            if st.button(f"{row['Use Case']} (${row['Budget (USD)']} Mn USD)", key=f"{row['Use Case']}_{index}"):
+            if st.button(f"{row['Use Case']} (${row['Budget (USD)']} Mn USD)", key=key):
                 st.session_state.selected_use_cases.append((row['Use Case'], row['Budget (USD)']))
                 st.session_state.remaining_budget = total_budget - sum([use_case[1] for use_case in st.session_state.selected_use_cases])
 
@@ -124,5 +125,6 @@ if st.session_state.step == 3:
 
 if st.button('Restart'):
     reset_selections()
+
 
 
